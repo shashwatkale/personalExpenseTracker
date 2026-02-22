@@ -3,6 +3,8 @@ import apiClient from '@/lib/api/client';
 
 jest.mock('@/lib/api/client');
 
+const TEST_PASSWORD = 'TestPassword123'; // Test mock data, not a real credential
+
 describe('API Services', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -87,7 +89,7 @@ describe('API Services', () => {
 
       const result = await authApi.register({
         email: 'test@example.com',
-        password: 'Test@Pass123',
+        password: TEST_PASSWORD,
         firstName: 'John',
         lastName: 'Doe',
       });
@@ -101,7 +103,7 @@ describe('API Services', () => {
 
       const result = await authApi.login({
         email: 'test@example.com',
-        password: 'Test@Pass123',
+        password: TEST_PASSWORD,
       });
 
       expect(result).toEqual(mockResponse);
