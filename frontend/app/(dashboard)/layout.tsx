@@ -6,6 +6,10 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import { LayoutDashboard, Receipt, LogOut, Wallet } from 'lucide-react';
 
+import ChatBot from '@/components/ChatBot';
+import { expenseApi } from '@/lib/api/services';
+import { useState } from 'react';
+
 export default function DashboardLayout({
   children,
 }: {
@@ -13,6 +17,22 @@ export default function DashboardLayout({
 }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleAddExpense = async (expense: any) => {
+    try {
+      console.log('Adding expense:', expense);
+      const result = await expenseApi.createExpense(expense);
+      console.log('Expense added successfully:', result);
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error: any) {
+      console.error('Failed to add expense:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      alert(`Failed to add expense: ${error.response?.data?.message || error.message || 'Unknown error'}`);
+    }
+  };
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -79,6 +99,7 @@ export default function DashboardLayout({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+      <ChatBot onAddExpense={handleAddExpense} />
     </div>
   );
 }
