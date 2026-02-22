@@ -37,3 +37,13 @@ public interface IJwtService
     string GenerateToken(Guid userId, string email);
     Guid? ValidateToken(string token);
 }
+
+public interface IBudgetService
+{
+    Task<BudgetResponse> CreateBudgetAsync(Guid userId, CreateBudgetRequest request);
+    Task<BudgetResponse> UpdateBudgetAsync(Guid userId, Guid budgetId, UpdateBudgetRequest request);
+    Task DeleteBudgetAsync(Guid userId, Guid budgetId);
+    Task<IEnumerable<BudgetResponse>> GetBudgetsAsync(Guid userId);
+    Task SetMonthlySalaryAsync(Guid userId, SetSalaryRequest request);
+    Task<SalaryOverviewResponse> GetSalaryOverviewAsync(Guid userId);
+}

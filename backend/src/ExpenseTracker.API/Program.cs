@@ -21,11 +21,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddHttpClient<IAiService, AiService>();
 
@@ -102,5 +104,20 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Add ClaimTypes mapping for JWT
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true)
+    {
+        var subClaim = context.User.FindFirst("sub");
+        if (subClaim != null)
+        {
+            var identity = context.User.Identity as System.Security.Claims.ClaimsIdentity;
+            identity?.AddClaim(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, subClaim.Value));
+        }
+    }
+    await next();
+});
 
 app.Run();

@@ -29,6 +29,25 @@ export interface MonthlySummary {
   aiSuggestions: string[];
 }
 
+export interface Budget {
+  id: string;
+  categoryId: string;
+  categoryName: string;
+  categoryIcon: string;
+  allocatedAmount: number;
+  spentAmount: number;
+  remainingAmount: number;
+  description: string;
+}
+
+export interface SalaryOverview {
+  monthlySalary: number;
+  totalAllocated: number;
+  totalSpent: number;
+  remaining: number;
+  budgets: Budget[];
+}
+
 export const expenseApi = {
   getExpenses: async (startDate?: string, endDate?: string) => {
     const params = new URLSearchParams();
@@ -111,5 +130,44 @@ export const authApi = {
   sendPhoneVerification: async (phoneNumber: string) => {
     const { data } = await apiClient.post('/auth/phone/send-code', { phoneNumber });
     return data;
+  },
+};
+
+export const budgetApi = {
+  setSalary: async (monthlySalary: number) => {
+    const { data } = await apiClient.post('/budget/salary', { monthlySalary });
+    return data;
+  },
+
+  getOverview: async () => {
+    const { data } = await apiClient.get<SalaryOverview>('/budget/overview');
+    return data;
+  },
+
+  getBudgets: async () => {
+    const { data } = await apiClient.get<Budget[]>('/budget');
+    return data;
+  },
+
+  createBudget: async (budget: {
+    categoryId: string;
+    allocatedAmount: number;
+    description: string;
+  }) => {
+    const { data } = await apiClient.post<Budget>('/budget', budget);
+    return data;
+  },
+
+  updateBudget: async (id: string, budget: {
+    categoryId: string;
+    allocatedAmount: number;
+    description: string;
+  }) => {
+    const { data } = await apiClient.put<Budget>(`/budget/${id}`, budget);
+    return data;
+  },
+
+  deleteBudget: async (id: string) => {
+    await apiClient.delete(`/budget/${id}`);
   },
 };

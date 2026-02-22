@@ -4,7 +4,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { LayoutDashboard, Receipt, LogOut } from 'lucide-react';
+import { LayoutDashboard, Receipt, LogOut, Wallet } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -53,6 +53,13 @@ export default function DashboardLayout({
               >
                 <Receipt className="w-5 h-5 mr-2" />
                 Expenses
+              </Link>
+              <Link
+                href="/budget"
+                className="inline-flex items-center px-4 py-2 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 font-medium"
+              >
+                <Wallet className="w-5 h-5 mr-2" />
+                Budget
               </Link>
             </div>
             <div className="flex items-center space-x-4">
