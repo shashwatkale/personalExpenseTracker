@@ -87,7 +87,7 @@ describe('API Services', () => {
 
       const result = await authApi.register({
         email: 'test@example.com',
-        password: 'password123',
+        password: 'Test@Pass123',
         firstName: 'John',
         lastName: 'Doe',
       });
@@ -101,7 +101,7 @@ describe('API Services', () => {
 
       const result = await authApi.login({
         email: 'test@example.com',
-        password: 'password123',
+        password: 'Test@Pass123',
       });
 
       expect(result).toEqual(mockResponse);
