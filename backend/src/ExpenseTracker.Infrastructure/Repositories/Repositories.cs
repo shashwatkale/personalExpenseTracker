@@ -75,6 +75,15 @@ public class ExpenseRepository : IExpenseRepository
             .Select(g => new { Category = g.Key, Total = g.Sum(e => e.Amount) })
             .ToDictionaryAsync(x => x.Category, x => x.Total);
     }
+
+    public async Task<Dictionary<Guid, decimal>> GetCategorySpendingAsync(Guid userId, DateTime startDate, DateTime endDate)
+    {
+        return await _context.Expenses
+            .Where(e => e.UserId == userId && e.Date >= startDate && e.Date <= endDate)
+            .GroupBy(e => e.CategoryId)
+            .Select(g => new { CategoryId = g.Key, Total = g.Sum(e => e.Amount) })
+            .ToDictionaryAsync(x => x.CategoryId, x => x.Total);
+    }
 }
 
 public class CategoryRepository : ICategoryRepository
@@ -144,5 +153,22 @@ public class UserRepository : IUserRepository
     public async Task<bool> ExistsAsync(string email)
     {
         return await _context.Users.AnyAsync(u => u.Email == email);
+    }
+
+    public async Task SetMonthlySalaryAsync(Guid userId, decimal salary)
+    {
+        var user = await GetByIdAsync(userId);
+        if (user != null)
+        {
+            user.MonthlySalary = salary;
+            user.UpdatedAt = DateTime.UtcNow;
+            await UpdateAsync(user);
+        }
+    }
+
+    public async Task<decimal> GetMonthlySalaryAsync(Guid userId)
+    {
+        var user = await GetByIdAsync(userId);
+        return user?.MonthlySalary ?? 0;
     }
 }

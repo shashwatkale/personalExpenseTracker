@@ -11,6 +11,7 @@ public interface IExpenseRepository
     Task DeleteAsync(Guid id, Guid userId);
     Task<decimal> GetTotalByPeriodAsync(Guid userId, DateTime startDate, DateTime endDate);
     Task<Dictionary<string, decimal>> GetCategoryBreakdownAsync(Guid userId, DateTime startDate, DateTime endDate);
+    Task<Dictionary<Guid, decimal>> GetCategorySpendingAsync(Guid userId, DateTime startDate, DateTime endDate);
 }
 
 public interface ICategoryRepository
@@ -28,4 +29,15 @@ public interface IUserRepository
     Task<User> AddAsync(User user);
     Task UpdateAsync(User user);
     Task<bool> ExistsAsync(string email);
+    Task SetMonthlySalaryAsync(Guid userId, decimal salary);
+    Task<decimal> GetMonthlySalaryAsync(Guid userId);
+}
+
+public interface IBudgetRepository
+{
+    Task<Budget?> GetByIdAsync(Guid id, Guid userId);
+    Task<IEnumerable<Budget>> GetByUserIdAsync(Guid userId);
+    Task<Budget> AddAsync(Budget budget);
+    Task UpdateAsync(Budget budget);
+    Task DeleteAsync(Guid id, Guid userId);
 }

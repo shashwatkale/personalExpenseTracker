@@ -10,6 +10,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Budget> Budgets => Set<Budget>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +23,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
             entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.MonthlySalary).HasColumnType("decimal(18,2)");
         });
 
         modelBuilder.Entity<Category>(entity =>
@@ -45,6 +47,24 @@ public class ApplicationDbContext : DbContext
             
             entity.HasOne(e => e.Category)
                 .WithMany(c => c.Expenses)
+                .HasForeignKey(e => e.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Budget>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.MonthlySalary).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.AllocatedAmount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Budgets)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.Category)
+                .WithMany()
                 .HasForeignKey(e => e.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
