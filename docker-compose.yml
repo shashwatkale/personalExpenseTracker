@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: expense-tracker-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - expense-tracker-network
+
+  # .NET Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: expense-tracker-backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ExpenseTrackerDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;
+      - Jwt__Key=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - Jwt__Issuer=ExpenseTrackerAPI
+      - Jwt__Audience=ExpenseTrackerClient
+      - AiService__BaseUrl=http://ai-service:8000
+      - Cors__AllowedOrigins=http://localhost:3000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - sqlserver
+      - ai-service
+    networks:
+      - expense-tracker-network
+
+  # Python AI Service
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: expense-tracker-ai
+    environment:
+      - ENVIRONMENT=production
+    ports:
+      - "8000:8000"
+    networks:
+      - expense-tracker-network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: expense-tracker-frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=your-secret-key-change-this-in-production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - expense-tracker-network
+
+  # Redis (Optional - for caching)
+  redis:
+    image: redis:7-alpine
+    container_name: expense-tracker-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - expense-tracker-network
+
+networks:
+  expense-tracker-network:
+    driver: bridge
+
+volumes:
+  sqlserver_data:
+  redis_data:
